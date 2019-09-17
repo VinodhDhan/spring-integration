@@ -1,12 +1,16 @@
 package com.vin.springintegration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.messaging.support.MessageBuilder;
 
@@ -16,6 +20,9 @@ import java.util.Map;
 @SpringBootApplication
 @ImportResource("integration-context.xml")
 public class SpringIntegrationApplication implements ApplicationRunner {
+
+    @Autowired
+    DirectChannel channel;
 
 
     public static void main(String[] args) {
@@ -42,6 +49,19 @@ public class SpringIntegrationApplication implements ApplicationRunner {
 
 
         // Sending message without channel example starts
+
+        channel.subscribe(new MessageHandler() {
+            @Override
+            public void handleMessage(Message<?> message) throws MessagingException {
+                new PrintService().print((Message<String>) message);
+            }
+        });
+
+        Message messageBuilderwithChannel = MessageBuilder.withPayload("Hello World from Channel example")
+                .setHeader("newHeader","newHeaderValue")
+                .build();
+
+        channel.send(messageBuilderwithChannel);
 
 
     }
