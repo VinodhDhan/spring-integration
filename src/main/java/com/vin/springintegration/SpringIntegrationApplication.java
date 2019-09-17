@@ -63,6 +63,8 @@ public class SpringIntegrationApplication implements ApplicationRunner {
 
         channel.send(messageBuilderwithChannel);
 
+        // Sending message without channel example ends
+
 
     }
 
