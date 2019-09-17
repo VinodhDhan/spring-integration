@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+    <int:gateway service-interface="com.vin.springintegration.routers.payloadrouter.PrinterGateway"
+                 default-request-channel="inputChannel"/>
+
+    <int:channel id="inputChannel"/>
+
+    <bean class="com.vin.springintegration.routers.payloadrouter.PrintService" id="printService"/>
+
+    <bean class="com.vin.springintegration.routers.payloadrouter.NumericPrintService" id="numericPrintService"/>
+
+    <int:payload-type-router input-channel="inputChannel">
+        <int:mapping type="java.lang.Integer" channel="intChannel"/>
+        <int:mapping type="java.lang.String" channel="stringChannel"/>
+    </int:payload-type-router>
+
+    <int:service-activator ref="numericPrintService" method="print" input-channel="intChannel"/>
+
+    <int:service-activator ref="printService" method="print" input-channel="stringChannel"/>
+
+
+</beans>
