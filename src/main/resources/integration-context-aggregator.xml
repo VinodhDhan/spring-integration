@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+    <int:gateway service-interface="com.vin.springintegration.aggregator.PrinterGateway"
+                 default-request-channel="inputChannel"/>
+
+    <int:channel id="inputChannel"/>
+    <int:channel id="outputChannel"/>
+    <int:channel id="agChannel"/>
+
+    <bean class="com.vin.springintegration.aggregator.CustomSplitter" id="customSplitter"/>
+
+    <int:splitter ref="customSplitter" method="split" input-channel="inputChannel" output-channel="agChannel"/>
+
+    <!--<int:aggregator input-channel="agChannel" output-channel="outputChannel"/>-->
+    <int:aggregator ref="aggregator" input-channel="agChannel" output-channel="outputChannel"/>
+
+    <bean class="com.vin.springintegration.aggregator.CustomAggregator" id="aggregator"/>
+
+    <bean class="com.vin.springintegration.aggregator.PrintService" id="printService"/>
+
+    <int:service-activator ref="printService" method="print" input-channel="outputChannel"/>
+
+</beans>
