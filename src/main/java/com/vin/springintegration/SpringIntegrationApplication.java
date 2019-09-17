@@ -8,6 +8,7 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.GenericMessage;
+import org.springframework.messaging.support.MessageBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +30,12 @@ public class SpringIntegrationApplication implements ApplicationRunner {
         Message message = new GenericMessage<String>("Hello World", headers);
         PrintService printService = new PrintService();
         printService.print(message);
+
+        //Construct message using message builder
+        Message messageBuilder = MessageBuilder.withPayload("Hello World from Build pattern")
+                                                .setHeader("newHeader","newHeaderValue")
+                                                .build();
+        printService.print(messageBuilder);
 
     }
 
