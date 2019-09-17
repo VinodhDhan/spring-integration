@@ -24,6 +24,9 @@ public class SpringIntegrationApplication implements ApplicationRunner {
 
 
     public void run(ApplicationArguments arg0) throws Exception {
+
+        // Sending message without channel example starts
+
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("Key", "value");
         MessageHeaders headers = new MessageHeaders(map);
@@ -36,6 +39,10 @@ public class SpringIntegrationApplication implements ApplicationRunner {
                                                 .setHeader("newHeader","newHeaderValue")
                                                 .build();
         printService.print(messageBuilder);
+
+
+        // Sending message without channel example starts
+
 
     }
 
