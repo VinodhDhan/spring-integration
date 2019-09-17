@@ -1,6 +1,7 @@
 package com.vin.springintegration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -22,7 +23,10 @@ import java.util.Map;
 public class SpringIntegrationApplication implements ApplicationRunner {
 
     @Autowired
-    DirectChannel channel;
+    private DirectChannel inputChannel;
+
+    @Autowired
+    DirectChannel outputChannel;
 
 
     public static void main(String[] args) {
@@ -50,10 +54,17 @@ public class SpringIntegrationApplication implements ApplicationRunner {
 
         // Sending message without channel example starts
 
-        channel.subscribe(new MessageHandler() {
+//        channel.subscribe(new MessageHandler() {
+//            @Override
+//            public void handleMessage(Message<?> message) throws MessagingException {
+//                new PrintService().print((Message<String>) message);
+//            }
+//        });
+
+        outputChannel.subscribe(new MessageHandler() {
             @Override
             public void handleMessage(Message<?> message) throws MessagingException {
-                new PrintService().print((Message<String>) message);
+                System.out.println(message.getPayload());
             }
         });
 
@@ -61,7 +72,7 @@ public class SpringIntegrationApplication implements ApplicationRunner {
                 .setHeader("newHeader","newHeaderValue")
                 .build();
 
-        channel.send(messageBuilderwithChannel);
+        inputChannel.send(messageBuilderwithChannel);
 
         // Sending message without channel example ends
 
