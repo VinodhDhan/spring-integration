@@ -1,4 +1,4 @@
-package com.vin.springintegration;
+package com.vin.springintegrationbasic;
 
 
 import org.springframework.messaging.Message;

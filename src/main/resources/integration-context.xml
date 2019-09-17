@@ -9,7 +9,7 @@
 
         <!--<int:channel id="outputChannel"/>-->
 
-        <bean class ="com.vin.springintegration.PrintService" id="printService"/>
+        <bean class ="com.vin.springintegrationbasic.PrintService" id="printService"/>
 
         <int:service-activator ref="printService" method="print" input-channel="inputChannel" />
                                <!--output-channel="outputChannel"-->
