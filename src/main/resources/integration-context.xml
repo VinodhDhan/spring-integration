@@ -6,7 +6,4 @@
             http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd">
 
 
-    <int:channel id="messageChannel"/>
-
-
-</beans>
+    </beans>
