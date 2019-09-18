@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+    <int:gateway service-interface="com.vin.springintegration.transformers.PrinterGateway"
+                 default-request-channel="inputChannel"/>
+
+    <int:channel id="inputChannel"/>
+    <int:channel id="outputChannel"/>
+    <int:channel id="filterChannel"/>
+    <int:channel id="enricherChannel"/>
+    <int:channel id="payloadEnricherChannel"/>
+    <int:channel id="requestChannel"/>
+
+
+    <int:header-enricher input-channel="inputChannel" output-channel="enricherChannel">
+        <!--<int:header name="publickey" value="54321"/>-->
+        <int:header name="publickey" ref="headerEnricher" method="getHeaderValue"/>
+    </int:header-enricher>
+
+    <!--<int:transformer ref="transformer" method="transform" input-channel="inputChannel" output-channel="outputChannel"/>-->
+    <int:header-filter header-names="privateKey" input-channel="enricherChannel" output-channel="filterChannel"/>
+
+    <int:enricher input-channel="filterChannel" request-channel="requestChannel"
+                  output-channel="payloadEnricherChannel">
+        <int:property name="phonenum" expression="payload"/>
+    </int:enricher>
+    <int:object-to-json-transformer input-channel="payloadEnricherChannel" output-channel="outputChannel"/>
+
+    <bean class="com.vin.springintegration.transformers.PrintService" id="printService"/>
+
+    <bean class="com.vin.springintegration.transformers.CustomTransformer" id="transformer"/>
+
+    <bean class="com.vin.springintegration.transformers.CustomHeaderEnricher" id="headerEnricher"/>
+
+    <bean class="com.vin.springintegration.transformers.CustomService" id="customService"/>
+
+    <int:service-activator ref="customService" input-channel="requestChannel" method="getPhoneNumber"/>
+
+    <int:service-activator ref="printService" method="print" input-channel="outputChannel"/>
+
+</beans>
