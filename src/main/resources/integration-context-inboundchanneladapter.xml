@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+
+    <int:inbound-channel-adapter ref="personDirectoryService" method="findNewPeople" channel="printChannel">
+        <int:poller fixed-rate="3000"/>
+    </int:inbound-channel-adapter>
+
+    <bean id="personDirectoryService"
+          class="com.vin.springintegration.endpoints.inboundchanneladapter.PersonDiectoryService"/>
+
+    <int:channel id="printChannel"/>
+    <int:channel id="upperCaseChannel"/>
+
+    <int:service-activator ref="uppercaseService" method="execute" input-channel="upperCaseChannel"/>
+
+    <bean id="uppercaseService" class="com.vin.springintegration.endpoints.inboundchanneladapter.UpperClassService"/>
+
+    <int:service-activator ref="printService" method="print"
+                           input-channel="printChannel"/>
+
+    <bean id="printService" class="com.vin.springintegration.endpoints.inboundchanneladapter.PrintService"/>
+</beans>
