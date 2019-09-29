@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+    <int:gateway service-interface="com.vin.springintegration.endpoints.gateway.EnhancedPrinterGateway">
+        <int:default-header name="globalHeader" value="simpleValue"/>
+        <int:method name="print" request-channel="printChannel">
+            <int:header name="individualHeader" expression="#args[0].firstName"/>
+        </int:method>
+        <int:method name="upperCase" request-channel="upperCaseChannel"/>
+    </int:gateway>
+
+    <int:channel id="printChannel"/>
+    <int:channel id="upperCaseChannel"/>
+
+    <int:service-activator ref="uppercaseService" method="execute" input-channel="upperCaseChannel"/>
+
+    <bean id="uppercaseService" class="com.vin.springintegration.endpoints.gateway.UpperClassService"/>
+
+    <int:service-activator ref="printService" method="print"
+                           input-channel="printChannel"/>
+
+    <bean id="printService" class="com.vin.springintegration.endpoints.gateway.PrintService"/>
+</beans>
