@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:int-file="http://www.springframework.org/schema/integration/file"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+
+    <int-file:inbound-channel-adapter
+            directory="src/test/read"
+            filename-pattern="sample.txt"
+            channel="inboundChannel">
+        <int:poller fixed-rate="10000"/>
+    </int-file:inbound-channel-adapter>
+
+
+    <int:channel id="inboundChannel"/>
+    <int:channel id="transformChannel"/>
+    <int:channel id="outboundChannel"/>
+
+    <int-file:file-to-string-transformer input-channel="inboundChannel" output-channel="transformChannel"/>
+
+    <bean id="filePrinter" class="com.vin.filesystemintegration.FilePrinter"/>
+
+    <int:service-activator ref="filePrinter" input-channel="outboundChannel"/>
+
+    <!--<int-file:outbound-channel-adapter-->
+    <!--directory="src/test/write"-->
+    <!--channel="inboundChannel"-->
+    <!--auto-create-directory="true"-->
+    <!--mode="REPLACE"-->
+    <!--delete-source-files="true"/>-->
+
+    <int-file:outbound-gateway request-channel="transformChannel" reply-channel="outboundChannel"
+                               directory="src/test/write" mode="REPLACE"/>
+</beans>
