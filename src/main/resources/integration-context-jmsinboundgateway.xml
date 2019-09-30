@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:int-http="http://www.springframework.org/schema/integration/http"
+       xmlns:int-jms="http://www.springframework.org/schema/integration/jms"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+        http://www.springframework.org/schema/integration/jms http://www.springframework.org/schema/integration/jms/spring-integration-jms.xsd">
+
+
+    <bean id="connectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="targetConnectionFactory">
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <property name="brokerURL" value="tcp://localhost:61616"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="queue" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="sample.queue"/>
+    </bean>
+
+    <bean id="replyQueue" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="reply.queue"/>
+    </bean>
+
+    <int-jms:inbound-gateway connection-factory="connectionFactory"
+                             request-destination="queue"
+                             request-channel="jmsChannel"
+                             default-reply-destination="replyQueue"/>
+
+    <int:service-activator ref="mp" method="print" input-channel="jmsChannel"/>
+
+    <int-jms:outbound-channel-adapter connection-factory="connectionFactory"
+                                      channel="outboundChannel"
+                                      destination="queue"/>
+
+    <int:object-to-string-transformer input-channel="inboundChannel" output-channel="outboundChannel"/>
+
+
+    <int:gateway service-interface="com.vin.jmsintegration.jmsinboundgateway.PersonGateway"
+                 default-request-channel="inboundChannel"></int:gateway>
+
+    <bean id="mp" class="com.vin.jmsintegration.jmsinboundgateway.MessagePrinter"/>
+
+    <int:channel id="jmsChannel"/>
+
+    <int:channel id="inboundChannel"/>
+
+    <int:channel id="outboundChannel"/>
+
+</beans>
