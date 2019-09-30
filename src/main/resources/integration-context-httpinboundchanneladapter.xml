@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:int="http://www.springframework.org/schema/integration"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:int-file="http://www.springframework.org/schema/integration/file"
+       xmlns:int-jdbc="http://www.springframework.org/schema/integration/jdbc"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:int-http="http://www.springframework.org/schema/integration/http"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+        http://www.springframework.org/schema/integration/jdbc http://www.springframework.org/schema/integration/jdbc/spring-integration-jdbc.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+        http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd">
+
+
+    <int:gateway service-interface="com.vin.jdbcintegration.outboundjdbc.PersonGateway"
+                 default-request-channel="inboundChannel"/>
+
+    <int-jdbc:outbound-channel-adapter
+            channel="inboundChannel"
+            data-source="datasource"
+            query="insert into person values(:payload.id,:payload.firstName,:payload.lastName)"/>
+
+    <jdbc:embedded-database id="datasource" type="H2">
+        <jdbc:script location="init.sql"/>
+    </jdbc:embedded-database>
+
+
+    <int:channel id="jdbcChannel"/>
+
+    <int:channel id="inboundChannel"/>
+
+
+    <bean id="mp" class="com.vin.jdbcintegration.inboundjdbc.MessagePrinter"/>
+
+    <int:service-activator ref="mp" method="print" input-channel="jdbcChannel"/>
+</beans>
